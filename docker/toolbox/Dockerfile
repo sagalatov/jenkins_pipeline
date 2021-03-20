@@ -1,5 +1,8 @@
-FROM alpine
-RUN apk add --no-cache curl wget busybox-extras netcat-openbsd python py-pip bash && \
-    pip install awscli
-RUN apk --purge -v del py-pip
-CMD tail -f /dev/null
+FROM node:12-alpine as builder
+WORKDIR /app
+COPY package.json /app/package.json
+RUN npm install --only=prod
+COPY . /app
+RUN npm run build
+RUN npm install --global serve
+CMD serve -s build
